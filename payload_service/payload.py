@@ -1,0 +1,59 @@
+import time
+import paho.mqtt.client as mqtt
+import picamera
+from pathlib import Path
+
+BROKER = "localhost"
+PORT = 1883
+
+# Топики
+OBC_COMMAND_TOPIC = "cubesat/obc/commands"   # команды от OBC
+PAYLOAD_PHOTO_TOPIC = "cubesat/payload/photo"  # сюда публикуем фото
+
+PHOTO_DIR = Path("photos")
+PHOTO_DIR.mkdir(exist_ok=True)
+
+photo_counter = 0
+
+def take_photo():
+    global photo_counter
+    photo_counter += 1
+    filename = PHOTO_DIR / f"photo_{photo_counter}.jpg"
+
+    try:
+        with picamera.PiCamera() as camera:
+            # Можно настроить разрешение
+            camera.resolution = (1024, 768)
+            # Немного прогреть камеру
+            camera.start_preview()
+            time.sleep(2)  # прогрев сенсоров камеры
+            camera.capture(str(filename))
+            camera.stop_preview()
+    except Exception as e:
+        print(f"Payload: Error taking photo: {e}")
+        return None
+
+    print(f"Payload: took photo {filename}")
+    return str(filename)
+
+def on_connect(client, userdata, flags, rc):
+    print("Payload connected to broker")
+    client.subscribe(OBC_COMMAND_TOPIC)
+
+def on_message(client, userdata, msg):
+    command = msg.payload.decode()
+    print(f"Payload received command: {command}")
+
+    if command == "take_photo":
+        photo_path = take_photo()
+        client.publish(PAYLOAD_PHOTO_TOPIC, photo_path)
+
+def main():
+    client = mqtt.Client("Payload")
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect(BROKER, PORT, 60)
+    client.loop_forever()
+
+if __name__ == "__main__":
+    main()
