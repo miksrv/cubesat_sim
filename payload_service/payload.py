@@ -6,9 +6,8 @@ from pathlib import Path
 BROKER = "localhost"
 PORT = 1883
 
-# Топики
-OBC_COMMAND_TOPIC = "cubesat/obc/commands"   # команды от OBC
-PAYLOAD_PHOTO_TOPIC = "cubesat/payload/photo"  # сюда публикуем фото
+OBC_COMMAND_TOPIC = "cubesat/obc/commands"
+PAYLOAD_PHOTO_TOPIC = "cubesat/payload/photo"
 
 PHOTO_DIR = Path("photos")
 PHOTO_DIR.mkdir(exist_ok=True)
@@ -22,11 +21,9 @@ def take_photo():
 
     try:
         with picamera.PiCamera() as camera:
-            # Можно настроить разрешение
             camera.resolution = (1024, 768)
-            # Немного прогреть камеру
             camera.start_preview()
-            time.sleep(2)  # прогрев сенсоров камеры
+            time.sleep(2)
             camera.capture(str(filename))
             camera.stop_preview()
     except Exception as e:
@@ -38,7 +35,7 @@ def take_photo():
 
 def on_connect(client, userdata, flags, rc):
     print("Payload connected to broker")
-    client.subscribe(OBC_COMMAND_TOPIC)
+    client.subscribe(OBC_COMMAND_TOPIC, qos=1)
 
 def on_message(client, userdata, msg):
     command = msg.payload.decode()
@@ -46,7 +43,8 @@ def on_message(client, userdata, msg):
 
     if command == "take_photo":
         photo_path = take_photo()
-        client.publish(PAYLOAD_PHOTO_TOPIC, photo_path)
+        if photo_path:
+            client.publish(PAYLOAD_PHOTO_TOPIC, photo_path, qos=1)
 
 def main():
     client = mqtt.Client("Payload")

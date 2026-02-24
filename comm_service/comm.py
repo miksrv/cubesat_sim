@@ -4,16 +4,14 @@ from pathlib import Path
 BROKER = "localhost"
 PORT = 1883
 
-# Топики
-PAYLOAD_PHOTO_TOPIC = "cubesat/payload/photo"   # подписка на фото от Payload
-UPLINK_TOPIC = "cubesat/comm/uplink"           # публикация для Telegram/LoRa
+PAYLOAD_PHOTO_TOPIC = "cubesat/payload/photo"
+UPLINK_TOPIC = "cubesat/comm/uplink"
 
 def on_connect(client, userdata, flags, rc):
     print("Comm Service connected to broker")
-    client.subscribe(PAYLOAD_PHOTO_TOPIC)
+    client.subscribe(PAYLOAD_PHOTO_TOPIC, qos=1)
 
 def on_message(client, userdata, msg):
-    """Получаем путь к фото и отправляем его в uplink"""
     photo_path = msg.payload.decode()
     photo_file = Path(photo_path)
 
@@ -25,8 +23,7 @@ def on_message(client, userdata, msg):
         with open(photo_file, "rb") as f:
             photo_bytes = f.read()
 
-        # Здесь можно добавить разбиение на пакеты, CRC и packet_id
-        client.publish(UPLINK_TOPIC, photo_bytes)
+        client.publish(UPLINK_TOPIC, photo_bytes, qos=1)
         print(f"Comm: sent photo {photo_file.name} to uplink")
 
     except Exception as e:

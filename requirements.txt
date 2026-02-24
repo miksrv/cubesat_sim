@@ -1,13 +1,7 @@
 # cubeSat_sim/requirements.txt
 
-# MQTT брокер
-hbmqtt==0.9.9
-
 # MQTT клиент для сервисов
 paho-mqtt==1.6.1
 
 # Для Pi Camera
 picamera==1.13
-
-# Для работы с asyncio (Python 3.7+ встроено, но на всякий случай)
-asyncio
