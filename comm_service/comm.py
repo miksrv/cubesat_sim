@@ -30,7 +30,10 @@ def on_message(client, userdata, msg):
         print(f"Comm: error sending photo: {e}")
 
 def main():
-    client = mqtt.Client(client_id="CommService", callback_api_version=1)
+    client = mqtt.Client(
+        client_id="CommService",
+        callback_api_version=mqtt.CallbackAPIVersion.VERSION1
+    )
     client.on_connect = on_connect
     client.on_message = on_message
     client.connect(BROKER, PORT, 60)

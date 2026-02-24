@@ -28,7 +28,10 @@ def on_message(client, userdata, msg):
         client.publish(OBC_TO_PAYLOAD_TOPIC, command, qos=1)
 
 def main():
-    client = mqtt.Client(client_id="OBC", callback_api_version=1)
+    client = mqtt.Client(
+        client_id="OBC",
+        callback_api_version=mqtt.CallbackAPIVersion.VERSION1
+    )
     client.on_connect = on_connect
     client.on_message = on_message
     client.connect(BROKER, PORT, 60)

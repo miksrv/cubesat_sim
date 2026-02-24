@@ -46,7 +46,10 @@ def on_message(client, userdata, msg):
             client.publish(PAYLOAD_PHOTO_TOPIC, photo_path, qos=1)
 
 def main():
-    client = mqtt.Client(client_id="Payload", callback_api_version=1)
+    client = mqtt.Client(
+        client_id="Payload",
+        callback_api_version=mqtt.CallbackAPIVersion.VERSION1
+    )
     client.on_connect = on_connect
     client.on_message = on_message
     client.connect(BROKER, PORT, 60)
