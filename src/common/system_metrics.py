@@ -84,5 +84,4 @@ class SystemMetricsCollector:
             "uptime_seconds": time.time() - psutil.boot_time(),  # более точно
             "cpu_temperature_c": cpu_temp,
             "gpu_temperature": gpu_temp,  # оставляем строку, как в vcgencmd
-            "timestamp": datetime.utcnow().isoformat() + "Z",
         }

@@ -7,6 +7,7 @@ import psutil
 
 from ..common.mqtt_client import get_mqtt_client  # предполагаем общий MQTT-хелпер
 from ..common.config import DB_PATH, TOPICS, MQTT_BROKER, MQTT_PORT, MQTT_KEEPALIVE
+from ..common.system_metrics import SystemMetricsCollector
 
 logger = logging.getLogger(__name__)
 
@@ -79,19 +80,13 @@ class TelemetryAggregator:
         except Exception as e:
             logger.error(f"Ошибка обработки MQTT {topic}: {e}")
 
-    def collect_system_metrics(self):
-        """Собирает метрики Raspberry Pi"""
-        return {
-            "cpu_percent": psutil.cpu_percent(interval=None),
-            "ram_percent": psutil.virtual_memory().percent,
-            "swap_percent": psutil.swap_memory().percent if hasattr(psutil, 'swap_memory') else 0.0,
-            "disk_percent": psutil.disk_usage('/').percent,
-            "uptime_seconds": int(time.time() - psutil.boot_time()),
-        }
+    def collect_system_metrics(self) -> dict:
+        """Собирает метрики системы через отдельный класс"""
+        return SystemMetricsCollector.collect(with_interval=0.8)
 
     def aggregate(self):
         """Собирает полный телеметрический пакет"""
-        now = datetime.utcnow().isoformat() + "Z"
+        now    = datetime.utcnow().isoformat() + "Z"
         system = self.collect_system_metrics()
 
         packet = {
