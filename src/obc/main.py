@@ -13,7 +13,7 @@ import os
 from state_machine import CubeSatStateMachine
 from handlers import OBCMessageHandlers
 from ..common.mqtt_client import get_mqtt_client
-from ..common.config import TOPICS, MQTT_BROKER, MQTT_PORT
+from ..common.config import TOPICS, MQTT_BROKER, MQTT_PORT, MQTT_KEEPALIVE
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ class OBC:
 
     def run(self):
         try:
-            self.mqtt_client.connect(MQTT_BROKER, MQTT_PORT, keepalive=60)
+            self.mqtt_client.connect(MQTT_BROKER, MQTT_PORT, keepalive=MQTT_KEEPALIVE)
             self.mqtt_client.loop_start()
 
             logger.info(f"OBC запущен. Состояние: {self.state_machine.state}")

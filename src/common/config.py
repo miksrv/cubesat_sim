@@ -8,8 +8,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # MQTT
 MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
-MQTT_USERNAME = os.getenv("MQTT_USERNAME", None)
-MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", None)
+# MQTT_USERNAME = os.getenv("MQTT_USERNAME", None)
+# MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", None)
 MQTT_KEEPALIVE = 60
 
 # Топики (централизованно — меняй здесь один раз)
