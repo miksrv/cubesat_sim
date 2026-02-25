@@ -19,6 +19,7 @@ class TelemetryAggregator:
 
         # Кэш последних данных от подсистем (обновляется по MQTT)
         self.latest = {
+            "obc": {},       # от OBC (On-Board Computer)
             "eps": {},       # от EPS
             "adcs": {},      # от ADCS
             "payload": {},   # от Payload (научные данные)
@@ -63,6 +64,7 @@ class TelemetryAggregator:
         client.subscribe(TOPICS["obc_status"], qos=1)
         client.subscribe(TOPICS["eps_status"], qos=1)
         client.subscribe(TOPICS["adcs_status"], qos=1)
+        client.subscribe(TOPICS["payload_data"], qos=1)
 
     def on_mqtt_message(self, client, userdata, msg):
         try:
@@ -70,13 +72,14 @@ class TelemetryAggregator:
             payload = msg.payload.decode('utf-8')
             data = json.loads(payload)
 
-            if topic == "cubesat/eps/status":
+            if topic == TOPICS["obc_status"]:
+                self.latest["obc"] = data
+            elif topic == TOPICS["eps_status"]:
                 self.latest["eps"] = data
-            elif topic == "cubesat/adcs/status":
+            elif topic == TOPICS["adcs_status"]:
                 self.latest["adcs"] = data
-            elif topic == "cubesat/payload/data":
+            elif topic == TOPICS["payload_data"]:
                 self.latest["payload"] = data
-            # Добавь обработку других топиков
 
             logger.debug(f"Обновлены данные из {topic}")
         except Exception as e:
@@ -101,7 +104,7 @@ class TelemetryAggregator:
         }
 
         # Публикация в MQTT
-        self.client.publish("cubesat/telemetry", json.dumps(packet), qos=1, retain=True)
+        self.mqtt_client.publish(TOPICS["telemetry"], json.dumps(packet), qos=1, retain=True)
 
         # Запись в БД
         self._log_to_db(packet, system)

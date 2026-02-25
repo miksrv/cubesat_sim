@@ -39,7 +39,7 @@ class OBC:
         client.subscribe(TOPICS["eps_status"], qos=1)
         client.subscribe(TOPICS["command"],    qos=1)
 
-        client.publish(
+        self.mqtt_client.publish(
             TOPICS["obc_status"],
             f'{{"state": "{self.state_machine.state}", "alive": true, "ts": {time.time()}}}',
             qos=1,
@@ -60,12 +60,6 @@ class OBC:
         except Exception as e:
             logger.error(f"Ошибка обработки сообщения {msg.topic}: {e}")
 
-    def publish(self, topic, payload, qos=1, retain=False):
-        try:
-            self.mqtt_client.publish(topic, payload, qos=qos, retain=retain)
-        except Exception as e:
-            logger.error(f"Ошибка публикации в {topic}: {e}")
-
     # def publish_control(self, subtopic, payload):
     #     """Удобный метод для команд управления подсистемами"""
     #     topic = f"cubesat/control/{subtopic}"
@@ -79,7 +73,7 @@ class OBC:
             logger.info(f"OBC запущен. Состояние: {self.state_machine.state}")
 
             while True:
-                self.publish(
+                self.mqtt_client.publish(
                     TOPICS["obc_status"],
                     f'{{"state": "{self.state_machine.state}", "ts": {time.time()}}}',
                     retain=True
