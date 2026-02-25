@@ -1,4 +1,3 @@
-# src/obc/handlers.py
 import json
 import logging
 

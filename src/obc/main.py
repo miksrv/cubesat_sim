@@ -1,4 +1,3 @@
-# src/obc/main.py
 import paho.mqtt.client as mqtt
 import time
 import logging

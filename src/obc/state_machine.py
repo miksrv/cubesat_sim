@@ -1,4 +1,3 @@
-# src/obc/state_machine.py
 from transitions import Machine
 import logging
 import json
