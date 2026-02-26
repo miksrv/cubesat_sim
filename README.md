@@ -99,7 +99,9 @@ cubesat/
 │   ├── test_mqtt.py              # simple publisher/subscriber for debugging
 │   ├── simulate_low_battery.py   # force battery discharge for tests
 │   ├── deploy_antena_sim.py      # DEPLOY simulation
-│   └── check_all_services.sh     # check status of all .service
+│   ├── install.sh                # Setup script for dependencies and service installation
+│   ├── start.sh                  # Start all services (for testing)
+│   └── stop.sh                   # Stop all services
 │
 ├── config/                       # configuration files
 │   ├── config.yaml               # main settings (topics, intervals, paths)
