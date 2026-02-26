@@ -114,9 +114,6 @@ cubesat/
 │   ├── cubesat-telemetry.service
 │   └── cubesat-comm.service
 │
-├── logs/                         # log files (can be .gitignore)
-│   └── (empty, created automatically)
-│
 ├── data/                         # temporary and persistent data
 │   ├── photos/                   # saved camera images
 │   ├── telemetry_archive/        # archive of json packets (optional)
