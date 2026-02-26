@@ -94,4 +94,8 @@ class CubeSatStateMachine:
         payload = {"state": self.state}
         if extra:
             payload.update(extra)
-        self.obc.publish("cubesat/obc/status", json.dumps(payload), retain=True)
+        self.mqtt_client.publish(
+            TOPICS["obc_status"],
+            json.dumps(payload),
+            retain=True
+        )
