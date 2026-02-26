@@ -2,9 +2,9 @@ import logging
 from src.common import setup_logging
 
 setup_logging(
-    log_level    = "INFO",
-    log_file     = "obc.log",
-    console      = True
+    log_level = "INFO",
+    log_file  = "obc.log",
+    console   = True
 )
 
 import time

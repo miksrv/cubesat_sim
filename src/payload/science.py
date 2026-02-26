@@ -1,4 +1,3 @@
-# src/payload/science.py
 import logging
 # from sense_hat import SenseHat  # если используешь Sense HAT
 

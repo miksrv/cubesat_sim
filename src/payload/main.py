@@ -1,23 +1,21 @@
-# src/payload/main.py
+import logging
+from src.common import setup_logging
+
+setup_logging(
+    log_level = "INFO",
+    log_file  = "payload.log",
+    console   = True
+)
+
 import paho.mqtt.client as mqtt
 import json
-import logging
 import sys
 import time
 import os
 
-from .camera import PayloadCamera
-from .science import ScienceCollector  # если используешь
+from src.payload.camera import PayloadCamera
+from src.payload.science import ScienceCollector
 
-# Настройка логирования
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('/var/log/cubesat/payload.log')
-    ]
-)
 logger = logging.getLogger(__name__)
 
 class PayloadService:
