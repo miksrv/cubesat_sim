@@ -1,0 +1,15 @@
+[Unit]
+Description=CubeSat Telemetry Aggregator Service
+After=network.target mosquitto.service
+
+[Service]
+User=%i
+WorkingDirectory=/home/%i/cubesat-sim/telemetry
+ExecStart=/home/%i/cubesat-sim/venv/bin/python main.py
+Restart=always
+RestartSec=10s
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target
