@@ -10,8 +10,8 @@ setup_logging(
 import time
 import sys
 import os
-from state_machine import CubeSatStateMachine
-from handlers import OBCMessageHandlers
+from src.obc.state_machine import CubeSatStateMachine
+from src.obc.handlers import OBCMessageHandlers
 from src.common import get_mqtt_client
 from src.common import TOPICS, MQTT_BROKER, MQTT_PORT, MQTT_KEEPALIVE
 
