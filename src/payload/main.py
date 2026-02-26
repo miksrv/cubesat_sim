@@ -104,12 +104,6 @@ class PayloadService:
         except Exception as e:
             logger.error(f"Ошибка обработки сообщения {topic}: {e}")
 
-    def publish(self, topic, payload, qos=1, retain=False):
-        try:
-            self.mqtt_client.publish(topic, payload, qos=qos, retain=retain)
-        except Exception as e:
-            logger.error(f"Ошибка публикации в {topic}: {e}")
-
     def run(self):
         self.mqtt_client.connect(MQTT_BROKER, MQTT_PORT, keepalive=MQTT_KEEPALIVE)
         self.mqtt_client.loop_start()

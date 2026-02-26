@@ -1,19 +1,28 @@
+import logging
+from src.common import setup_logging
+
+setup_logging(
+    log_level = "INFO",
+    log_file  = "telemetry.log",
+    console   = True
+)
+
 import json
 import time
-import logging
 import sqlite3
 from datetime import datetime
 import psutil
 
-from ..common.mqtt_client import get_mqtt_client  # предполагаем общий MQTT-хелпер
-from ..common.config import DB_PATH, TOPICS, MQTT_BROKER, MQTT_PORT, MQTT_KEEPALIVE
-from ..common.system_metrics import SystemMetricsCollector
+from src.common.mqtt_client import get_mqtt_client  # предполагаем общий MQTT-хелпер
+from src.common.config import DB_PATH, TOPICS, MQTT_BROKER, MQTT_PORT, MQTT_KEEPALIVE
+from src.common.system_metrics import SystemMetricsCollector
 
 logger = logging.getLogger(__name__)
 
 class TelemetryAggregator:
     def __init__(self):
-        self.mqtt_client = get_mqtt_client(client_id="cubesat-telemetry")
+        # Один раз создаём клиента с хорошими настройками
+        self.mqtt_client = get_mqtt_client("cubesat-telemetry")
         self.mqtt_client.on_connect = self.on_mqtt_connect
         self.mqtt_client.on_message = self.on_mqtt_message
 
