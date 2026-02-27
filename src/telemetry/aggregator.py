@@ -143,7 +143,7 @@ class TelemetryAggregator:
                 temperature, humidity, pressure,
                 cpu_percent, ram_percent, swap_percent, disk_percent,
                 uptime_seconds, cpu_temperature, obc_state, raw_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     packet["timestamp"],
                     packet["eps"].get("battery", None),
