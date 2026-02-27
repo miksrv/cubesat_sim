@@ -1,5 +1,5 @@
 import time
-import smbus
+from smbus2 import SMBus as smbus
 import logging
 import lgpio as sbc
 from typing import Dict, Optional
@@ -36,7 +36,7 @@ class ScienceCollector:
 
     def __init__(self):
         # LPS22HB (smbus)
-        self.lps_bus = smbus.SMBus(1)
+        self.lps_bus = smbus(1)
         self.lps_addr = LPS22HB_I2C_ADDRESS
         self._lps_init()
 
