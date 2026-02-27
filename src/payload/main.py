@@ -109,14 +109,14 @@ class PayloadService:
 
         try:
             while True:
-                if int(time.time()) % 60 == 0:
-                    science_data = self.science.collect()
-                    self.mqtt_client.publish(
-                        TOPICS["payload_data"],
-                        json.dumps(science_data),
-                        qos=1,
-                        retain=False
-                    )
+                science_data = self.science.collect()
+                self.mqtt_client.publish(
+                    TOPICS["payload_data"],
+                    json.dumps(science_data),
+                    qos=1,
+                    retain=False
+                )
+                time.sleep(60)
         except KeyboardInterrupt:
             logger.info("Payload остановлен по Ctrl+C")
         except Exception as e:

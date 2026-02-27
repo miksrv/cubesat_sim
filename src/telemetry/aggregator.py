@@ -83,25 +83,8 @@ class TelemetryAggregator:
             elif topic == TOPICS["payload_data"]:
                 self.latest["payload"] = data
             elif topic == TOPICS["command_telemetry"]:
-                # При получении команды собираем и публикуем телеметрию
-                request_id = None
-                if "request_id" in data:
-                    request_id = data["request_id"]
-
-                now = datetime.utcnow().isoformat() + "Z"
-                system = self.system_collector.collect(with_interval=0.8)
-                packet = {
-                    "timestamp": now,
-                    "obc_state": self.latest.get("obc", {}).get("state", "UNKNOWN"),
-                    "eps": self.latest.get("eps", {}),
-                    "adcs": self.latest.get("adcs", {}),
-                    "payload": self.latest.get("payload", {}),
-                    "system": system,
-                }
-
-                if request_id is not None:
-                    packet["request_id"] = request_id
-
+                packet = self.build_telemetry_packet()
+                packet["request_id"] = data.get("request_id")
                 self.mqtt_client.publish(
                     TOPICS["telemetry_data"],
                     json.dumps(packet),
@@ -113,11 +96,9 @@ class TelemetryAggregator:
         except Exception as e:
             logger.error(f"Ошибка обработки MQTT {topic}: {e}")
 
-    def aggregate(self):
-        """Собирает полный телеметрический пакет"""
-        now    = datetime.utcnow().isoformat() + "Z"
+    def build_telemetry_packet(self):
+        now = datetime.utcnow().isoformat() + "Z"
         system = self.system_collector.collect(with_interval=0.8)
-
         packet = {
             "timestamp": now,
             "obc_state": self.latest.get("obc", {}).get("state", "UNKNOWN"),
@@ -126,13 +107,16 @@ class TelemetryAggregator:
             "payload": self.latest.get("payload", {}),
             "system": system,
         }
+        return packet
 
-        # Запись в БД
-        self._log_to_db(packet, system)
+    def aggregate(self):
+        """Собирает полный телеметрический пакет"""
+        packet = self.build_telemetry_packet()
+        self._log_to_db(packet)
 
-        logger.info(f"Агрегирована телеметрия: {now}")
+        logger.info(f"Агрегирована телеметрия: {packet['timestamp']}")
 
-    def _log_to_db(self, packet, system):
+    def _log_to_db(self, packet):
         cursor = self.conn.cursor()
         cursor.execute('''
             INSERT INTO telemetry_log (
@@ -153,12 +137,12 @@ class TelemetryAggregator:
                     packet["payload"].get("temperature", None),
                     packet["payload"].get("humidity", None),
                     packet["payload"].get("pressure", None),
-                    system.get("cpu_percent", None),
-                    system.get("ram_percent", None),
-                    system.get("swap_percent", None),
-                    system.get("disk_percent", None),
-                    system.get("uptime_seconds", None),
-                    system.get("cpu_temperature", None),
+                    packet["system"].get("cpu_percent", None),
+                    packet["system"].get("ram_percent", None),
+                    packet["system"].get("swap_percent", None),
+                    packet["system"].get("disk_percent", None),
+                    packet["system"].get("uptime_seconds", None),
+                    packet["system"].get("cpu_temperature", None),
                     packet.get("obc_state", None),
                     json.dumps(packet, ensure_ascii=False)
                 ))
