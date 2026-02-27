@@ -18,6 +18,7 @@ TOPICS: Dict[str, str] = {
     "command":              "cubesat/command",
     "command_photo":        "cubesat/command/photo",
     "command_payload":      "cubesat/command/payload",
+    "command_telemetry":    "cubesat/command/telemetry",
 
     # Статусы подсистем
     "obc_status":           "cubesat/obc/status",
@@ -25,11 +26,11 @@ TOPICS: Dict[str, str] = {
     "adcs_status":          "cubesat/adcs/status",
     "payload_status":       "cubesat/payload/status",
     "payload_data":         "cubesat/payload/data",
+    "payload_photo":        "cubesat/payload/photo",
+    "telemetry_data":       "cubesat/telemetry/data",
 
     # Телеметрия
     "telemetry":            "cubesat/telemetry",
-    "telemetry_request":    "cubesat/request/telemetry",
-    "telemetry_response":   "cubesat/response/telemetry",
 
     # Управление подсистемами (от OBC)
     "control":              "cubesat/control/#",

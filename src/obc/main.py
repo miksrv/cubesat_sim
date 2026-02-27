@@ -48,9 +48,9 @@ class OBC:
             payload = msg.payload.decode('utf-8')
             topic = msg.topic
 
-            if topic == "cubesat/eps/status":
+            if topic == TOPICS["eps_status"]:
                 self.handlers.handle_eps_status(payload)
-            elif topic == "cubesat/command":
+            elif topic == TOPICS["command"]:
                 self.handlers.handle_command(payload)
             else:
                 logger.debug(f"Необработанный топик: {topic}")

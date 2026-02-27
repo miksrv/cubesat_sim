@@ -9,7 +9,7 @@ setup_logging(
 
 import sys
 
-from aggregator import TelemetryAggregator
+from src.telemetry.aggregator import TelemetryAggregator
 
 if __name__ == "__main__":
     agg = TelemetryAggregator()
