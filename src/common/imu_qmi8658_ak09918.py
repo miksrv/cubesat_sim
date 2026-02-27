@@ -1,6 +1,6 @@
 import time
 import math
-import smbus
+from smbus2 import SMBus as smbus
 from typing import Dict, Tuple, Optional
 
 # Константы (из твоего примера)
@@ -34,7 +34,10 @@ AK_CONT_20HZ  = 0x04
 
 class IMU:
     def __init__(self):
-        self.bus = smbus.SMBus(1)
+        self.bus = smbus(1)
+        self.exInt = 0.0
+        self.eyInt = 0.0
+        self.ezInt = 0.0
         self.gyro_offset = [0, 0, 0]
         self._init_sensors()
         self._calibrate_gyro()
@@ -149,8 +152,8 @@ class IMU:
         ez = (ax * vy - ay * vx)
 
         self.exInt += ex * self.Ki * self.halfT
-        eyInt += ey * self.Ki * self.halfT
-        ezInt += ez * self.Ki * self.halfT
+        self.eyInt += ey * self.Ki * self.halfT
+        self.ezInt += ez * self.Ki * self.halfT
 
         gx += self.Kp * ex + self.exInt
         gy += self.Kp * ey + self.eyInt

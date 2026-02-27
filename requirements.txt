@@ -9,3 +9,5 @@ psutil>=5.9.0
 
 # Конечный автомат состояний
 transitions
+
+smbus2
