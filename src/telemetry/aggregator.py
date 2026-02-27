@@ -62,12 +62,12 @@ class TelemetryAggregator:
         ''')
         self.conn.commit()
 
-    def on_mqtt_connect(self, client, userdata, flags, rc):
-        if rc != 0:
-            logger.error(f"Ошибка подключения MQTT → rc = {rc}")
+    def on_mqtt_connect(self, client, userdata, flags, reason_code, properties=None):
+        if reason_code != 0:
+            logger.error(f"MQTT connection error → rc = {reason_code}")
             return
 
-        logger.info(f"MQTT подключён (rc={rc}, client_id={client._client_id.decode()})")
+        logger.info(f"MQTT connected (rc={reason_code}, client_id={client._client_id.decode()})")
 
         client.subscribe(TOPICS["obc_status"], qos=1)
         client.subscribe(TOPICS["eps_status"], qos=1)
