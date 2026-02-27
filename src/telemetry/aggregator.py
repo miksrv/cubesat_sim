@@ -1,12 +1,4 @@
 import logging
-from src.common import setup_logging
-
-setup_logging(
-    log_level = "INFO",
-    log_file  = "telemetry.log",
-    console   = True
-)
-
 import json
 import time
 import sqlite3
@@ -73,6 +65,7 @@ class TelemetryAggregator:
         client.subscribe(TOPICS["eps_status"], qos=1)
         client.subscribe(TOPICS["adcs_status"], qos=1)
         client.subscribe(TOPICS["payload_data"], qos=1)
+        client.subscribe(TOPICS["command_telemetry"], qos=1)
 
     def on_mqtt_message(self, client, userdata, msg):
         try:
@@ -88,6 +81,24 @@ class TelemetryAggregator:
                 self.latest["adcs"] = data
             elif topic == TOPICS["payload_data"]:
                 self.latest["payload"] = data
+            elif topic == TOPICS["command_telemetry"]:
+                # При получении команды собираем и публикуем телеметрию
+                now = datetime.utcnow().isoformat() + "Z"
+                system = self.collect_system_metrics()
+                packet = {
+                    "timestamp": now,
+                    "obc_state": self.latest.get("obc", {}).get("state", "UNKNOWN"),
+                    "eps": self.latest.get("eps", {}),
+                    "adcs": self.latest.get("adcs", {}),
+                    "payload": self.latest.get("payload", {}),
+                    "system": system,
+                }
+                self.mqtt_client.publish(
+                    TOPICS["telemetry_data"],
+                    json.dumps(packet),
+                    qos=1,
+                    retain=True
+                )
 
             logger.debug(f"Обновлены данные из {topic}")
         except Exception as e:
@@ -110,9 +121,6 @@ class TelemetryAggregator:
             "payload": self.latest.get("payload", {}),
             "system": system,
         }
-
-        # Публикация в MQTT
-        self.mqtt_client.publish(TOPICS["telemetry"], json.dumps(packet), qos=1, retain=True)
 
         # Запись в БД
         self._log_to_db(packet, system)
