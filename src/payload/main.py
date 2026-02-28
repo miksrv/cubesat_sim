@@ -90,7 +90,7 @@ class PayloadService:
                     "size_bytes": os.path.getsize(path) if os.path.exists(path) else 0
                 }
                 self.mqtt_client.publish(
-                    TOPICS["payload_status"],
+                    TOPICS["payload_photo"],
                     json.dumps(response),
                     qos=1,
                     retain=True
