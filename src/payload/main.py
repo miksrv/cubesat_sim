@@ -122,7 +122,7 @@ class PayloadService:
                             "size_bytes": response["size_bytes"]
                         }
                         self.mqtt_client.publish(
-                            TOPICS["payload_status"],          # ← статус без фото
+                            TOPICS["payload_photo"],          # ← статус без фото
                             json.dumps(status_only),
                             qos=1,
                             retain=True
@@ -149,7 +149,7 @@ class PayloadService:
             "reason": reason
         }
         self.mqtt_client.publish(
-            "cubesat/payload/photo",
+            TOPICS["payload_photo"],
             json.dumps(response),
             qos=1,
             retain=False
