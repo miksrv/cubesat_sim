@@ -2,6 +2,7 @@ import smbus2
 import time
 import logging
 from typing import Dict, Optional
+import RPi.GPIO as GPIO
 
 logger = logging.getLogger(__name__)
 
@@ -10,29 +11,23 @@ BATTERY_I2C_ADDR = 0x36
 REG_VCELL = 0x02
 REG_SOC = 0x04
 
-PLD_GPIO_NUM = 6  # BCM 6 — как в документации X728
+PLD_PIN = 6  # BCM 6 — как в документации X728
 
 class EPSMonitor:
     def __init__(self):
         self.bus = smbus2.SMBus(I2C_BUS)
-        self.gpio_path = f"/sys/class/gpio/gpio{PLD_GPIO_NUM}/value"
-        self._export_gpio()  # экспортируем пин, если ещё не
 
-    def _export_gpio(self):
-        """Экспортируем GPIO6 в sysfs, если ещё не экспортирован"""
-        export_path = "/sys/class/gpio/export"
-        try:
-            if not os.path.exists(self.gpio_path):
-                with open(export_path, "w") as f:
-                    f.write(str(PLD_GPIO_NUM))
-                time.sleep(0.1)  # даём время на создание
-                # Устанавливаем направление input
-                direction_path = f"/sys/class/gpio/gpio{PLD_GPIO_NUM}/direction"
-                with open(direction_path, "w") as f:
-                    f.write("in")
-                logger.info(f"GPIO{PLD_GPIO_NUM} экспортирован и настроен как input")
-        except Exception as e:
-            logger.warning(f"Не удалось экспортировать GPIO{PLD_GPIO_NUM}: {e}")
+        if GPIO_AVAILABLE:
+            try:
+                GPIO.setwarnings(False)
+                GPIO.setmode(GPIO.BCM)
+                GPIO.setup(PLD_PIN, GPIO.IN)
+                logger.info(f"RPi.GPIO инициализирован для PLD_PIN={PLD_PIN}")
+            except Exception as e:
+                logger.warning(f"Не удалось настроить GPIO: {e}")
+                GPIO_AVAILABLE = False  # отключаем, если ошибка
+        else:
+            logger.warning("GPIO отключён — external_power всегда True")
 
     def read_word(self, reg: int) -> int:
         try:
@@ -60,17 +55,18 @@ class EPSMonitor:
 
     def get_external_power(self) -> bool:
         """True = на внешнем питании (AC), False = на батарее"""
-        try:
-            with open(self.gpio_path, "r") as f:
-                pin_value = int(f.read().strip())
+        if not GPIO_AVAILABLE:
+            return True
 
+        try:
+            pin_value = GPIO.input(PLD_PIN)
             # По документации Geekworm: 0 = AC OK (внешнее есть), 1 = AC Lost
             is_ac_present = (pin_value == 0)
-            logger.debug(f"PLD_PIN value = {pin_value}, external_power = {is_ac_present}")
+            logger.debug(f"PLD_PIN = {pin_value}, external_power = {is_ac_present}")
             return is_ac_present
         except Exception as e:
-            logger.error(f"Ошибка чтения GPIO sysfs: {e}")
-            return True  # безопасный fallback
+            logger.error(f"GPIO read error: {e}")
+            return True
 
     def get_status(self) -> Dict:
         status = {
@@ -85,5 +81,8 @@ class EPSMonitor:
         return status
 
     def __del__(self):
-        # Можно unexport пин при выходе, но не обязательно
-        pass
+        if GPIO_AVAILABLE:
+            try:
+                GPIO.cleanup()
+            except:
+                pass

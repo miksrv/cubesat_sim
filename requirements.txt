@@ -11,3 +11,4 @@ psutil>=5.9.0
 transitions
 
 smbus2
+RPi.GPIO
