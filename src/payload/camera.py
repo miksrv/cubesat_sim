@@ -4,6 +4,7 @@ from picamera2.outputs import FileOutput
 import time
 import os
 import logging
+from libcamera import Transform
 from threading import Thread, Event
 
 logger = logging.getLogger(__name__)
@@ -20,7 +21,8 @@ class PayloadCamera:
         # Конфигурация камеры (можно настраивать)
         config = self.picam2.create_still_configuration(
             main={"size": (1920, 1080)},  # или (4056, 3040) для полного разрешения
-            lores={"size": (640, 480), "format": "YUV420"}
+            lores={"size": (640, 480), "format": "YUV420"},
+            transform=Transform(hflip=1, vflip=1)
         )
         self.picam2.configure(config)
         self.picam2.start()
