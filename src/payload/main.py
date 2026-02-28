@@ -11,6 +11,7 @@ import json
 import sys
 import time
 import os
+import base64
 
 from src.payload.camera import PayloadCamera
 from src.payload.science import ScienceCollector
