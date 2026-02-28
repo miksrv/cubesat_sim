@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class EPSService:
     def __init__(self):
         self.mqtt_client = get_mqtt_client("cubesat-eps")
-        self.monitor = EPSMonitor(use_gpio=True)  # можно False для теста без GPIO
+        self.monitor = EPSMonitor()  # можно False для теста без GPIO
 
     def publish_status(self):
         status = self.monitor.get_status()

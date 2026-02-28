@@ -14,18 +14,16 @@ REG_SOC = 0x04
 PLD_PIN = 6  # BCM 6 — как в документации X728
 
 class EPSMonitor:
-    def __init__(self, use_gpio: bool = True):
+    def __init__(self):
         self.bus = smbus2.SMBus(I2C_BUS)
-        self.use_gpio = use_gpio
-        if self.use_gpio:
-            try:
-                GPIO.setwarnings(False)
-                GPIO.setmode(GPIO.BCM)
-                GPIO.setup(PLD_PIN, GPIO.IN)
-                logger.info(f"RPi.GPIO инициализирован для PLD_PIN={PLD_PIN}")
-            except Exception as e:
-                logger.error(f"Ошибка настройки GPIO: {e}")
-                raise
+        try:
+            GPIO.setwarnings(False)
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(PLD_PIN, GPIO.IN)
+            logger.info(f"RPi.GPIO инициализирован для PLD_PIN={PLD_PIN}")
+        except Exception as e:
+            logger.error(f"Ошибка настройки GPIO: {e}")
+            raise
 
     def read_word(self, reg: int) -> int:
         try:
@@ -53,9 +51,6 @@ class EPSMonitor:
 
     def get_external_power(self) -> bool:
         """True = на внешнем питании (AC), False = на батарее"""
-        if not self.use_gpio:
-            logger.debug("GPIO не используется, возвращаем True для внешнего питания (тестовый режим)")
-            return True
         try:
             pin_value = GPIO.input(PLD_PIN)
             # По документации Geekworm: 0 = AC OK (внешнее есть), 1 = AC Lost
@@ -74,13 +69,11 @@ class EPSMonitor:
             "external_power": self.get_external_power(),
             "status": "ok"
         }
-        if not status["external_power"]:
-            logger.warning("ВНИМАНИЕ: внешнее питание отключено! Работает от батареи")
+
         return status
 
     def __del__(self):
-        if self.use_gpio:
-            try:
-                GPIO.cleanup()
-            except Exception as e:
-                logger.debug(f"GPIO cleanup не требуется: {e}")
+        try:
+            GPIO.cleanup()
+        except Exception as e:
+            logger.debug(f"GPIO cleanup не требуется: {e}")
