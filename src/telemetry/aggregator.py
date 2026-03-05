@@ -17,18 +17,18 @@ class TelemetryAggregator:
         self.mqtt_client.on_connect = self.on_mqtt_connect
         self.mqtt_client.on_message = self.on_mqtt_message
 
-        # Кэш последних данных от подсистем (обновляется по MQTT)
+        # Cache for latest subsystem data (updated via MQTT)
         self.latest = {
-            "obc": {},       # от OBC (On-Board Computer)
-            "eps": {},       # от EPS
-            "adcs": {},      # от ADCS
-            "payload": {},   # от Payload (научные данные)
-            # можно добавить другие
+            "obc": {},       # from OBC (On-Board Computer)
+            "eps": {},       # from EPS
+            "adcs": {},      # from ADCS
+            "payload": {},   # from Payload (science data)
+            # add others if needed
         }
 
         self.system_collector = SystemMetricsCollector()
 
-        # Инициализация БД
+        # Initialize database
         self.conn = sqlite3.connect(DB_PATH, check_same_thread=False)
         self._create_table()
 
@@ -95,9 +95,9 @@ class TelemetryAggregator:
                     retain=True
                 )
 
-            logger.debug(f"Обновлены данные из {topic}")
+            logger.debug(f"Updated data from {topic}")
         except Exception as e:
-            logger.error(f"Ошибка обработки MQTT {topic}: {e}")
+            logger.error(f"Error processing MQTT {topic}: {e}")
 
     def build_telemetry_packet(self):
         now = datetime.utcnow().isoformat() + "Z"
@@ -113,11 +113,11 @@ class TelemetryAggregator:
         return packet
 
     def aggregate(self):
-        """Собирает полный телеметрический пакет"""
+        """Collects a full telemetry packet"""
         packet = self.build_telemetry_packet()
         self._log_to_db(packet)
 
-        logger.info(f"Агрегирована телеметрия: {packet['timestamp']}")
+        logger.info(f"Telemetry aggregated: {packet['timestamp']}")
 
     def _log_to_db(self, packet):
         cursor = self.conn.cursor()
@@ -169,22 +169,22 @@ class TelemetryAggregator:
         self.mqtt_client.connect(MQTT_BROKER, MQTT_PORT, keepalive=MQTT_KEEPALIVE)
         self.mqtt_client.loop_start()
 
-        logger.info("Telemetry Aggregator запущен")
+        logger.info("Telemetry Aggregator started")
 
         try:
             while True:
                 obc_state = self.latest.get("obc", {}).get("state", None)
                 if obc_state == "SCIENCE":
                     self.aggregate()
-                    time.sleep(30)  # интервал агрегации — можно сделать конфигурируемым
+                    time.sleep(30)  # aggregation interval — can be made configurable
                 else:
-                    time.sleep(0.5)  # предотвращение зацикливания при отсутствии агрегации
+                    time.sleep(0.5)  # prevents busy loop when not aggregating
         except KeyboardInterrupt:
-            logger.info("Остановка Telemetry Aggregator")
+            logger.info("Telemetry Aggregator stopped by Ctrl+C")
         except Exception as e:
-            logger.exception("Критическая ошибка в главном цикле Telemetry Aggregator")
+            logger.exception("Critical error in main Telemetry Aggregator loop")
         finally:
             self.mqtt_client.loop_stop()
             self.mqtt_client.disconnect()
             self.conn.close()
-            logger.info("Telemetry Aggregator завершил работу")
+            logger.info("Telemetry Aggregator stopped")
