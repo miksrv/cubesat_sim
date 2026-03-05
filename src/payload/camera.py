@@ -10,7 +10,7 @@ from libcamera import Transform
 logger = logging.getLogger(__name__)
 
 class PayloadCamera:
-    PHOTO_DIR = "/home/mik/cubesat-sim/data/photos"  # или из конфига
+    PHOTO_DIR = "/home/mik/cubesat-sim/data/photos"  # or from config
     def __init__(self):
         os.makedirs(self.PHOTO_DIR, exist_ok=True)
         self.timelapse_running = False
@@ -20,7 +20,7 @@ class PayloadCamera:
     def _init_camera(self):
         picam2 = Picamera2()
         config = picam2.create_still_configuration(
-            main={"size": (1920, 1080)},  # или (4056, 3040) для полного разрешения
+            main={"size": (1920, 1080)},  # or (4056, 3040) for full resolution
             lores={"size": (640, 480), "format": "YUV420"},
             transform=Transform(hflip=1, vflip=1)
         )
@@ -29,7 +29,7 @@ class PayloadCamera:
         return picam2
 
     def take_photo(self, overlay=False):
-        """Делает одно фото и возвращает путь к файлу"""
+        """Takes a single photo and returns the file path"""
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         filename = f"photo_{timestamp}.jpg"
         path = os.path.join(self.PHOTO_DIR, filename)
@@ -40,14 +40,14 @@ class PayloadCamera:
             request.save("main", path)
             request.release()
 
-            logger.info(f"Фото сохранено: {path}")
+            logger.info(f"Photo saved: {path}")
 
-            # Если overlay=True — здесь можно добавить логику (см. предыдущий ответ)
-            # Пока просто возвращаем путь
+            # If overlay=True — add logic here (see previous answer)
+            # For now, just return the path
             return path
 
         except Exception as e:
-            logger.error(f"Ошибка съёмки фото: {e}")
+            logger.error(f"Photo capture error: {e}")
             return None
         finally:
             if picam2:
@@ -56,7 +56,7 @@ class PayloadCamera:
 
     def start_timelapse(self, interval_sec=60):
         if self.timelapse_running:
-            logger.warning("Timelapse уже запущен")
+            logger.warning("Timelapse is already running")
             return
 
         self.timelapse_running = True
@@ -64,11 +64,11 @@ class PayloadCamera:
         self.timelapse_thread = Thread(target=self._timelapse_loop, args=(interval_sec,))
         self.timelapse_thread.daemon = True
         self.timelapse_thread.start()
-        logger.info(f"Timelapse запущен с интервалом {interval_sec} сек")
+        logger.info(f"Timelapse started with interval {interval_sec} sec")
 
     def _timelapse_loop(self, interval):
         while not self.stop_event.is_set():
-            self.take_photo()  # можно добавить overlay
+            self.take_photo()  # you can add overlay
             time.sleep(interval)
 
     def stop_timelapse(self):
@@ -78,8 +78,8 @@ class PayloadCamera:
         if self.timelapse_thread:
             self.timelapse_thread.join(timeout=5)
         self.timelapse_running = False
-        logger.info("Timelapse остановлен")
+        logger.info("Timelapse stopped")
 
     def cleanup(self):
         self.stop_timelapse()
-        logger.info("Камера остановлена")
+        logger.info("Camera stopped")
