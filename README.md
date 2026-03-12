@@ -139,7 +139,64 @@ cubesat/
 3. Run individual subsystem services from `src/`
 4. Use scripts in `scripts/` for testing and simulation
 
+---
+
+## Configuration (.env file)
+
+CubeSat Sim uses environment variables for configuration. You can create a `.env` file in the project root to override default settings. Example parameters:
+
+```
+MQTT_BROKER=localhost
+MQTT_PORT=1883
+TELEMETRY_API_KEY=your-secret-api-key-here
+TELEMETRY_API_URL=http://localhost:8080
+TELEMETRY_SEND_ENABLED=1
+TELEMETRY_SEND_INTERVAL_SEC=30
+```
+
+**Parameter descriptions:**
+- `MQTT_BROKER`, `MQTT_PORT`: MQTT broker address and port
+- `TELEMETRY_API_KEY`: API key for remote telemetry server (required for POST requests)
+- `TELEMETRY_API_URL`: Base URL for remote telemetry API
+- `TELEMETRY_SEND_ENABLED`: Set to `1` to enable sending telemetry to remote API
+- `TELEMETRY_SEND_INTERVAL_SEC`: Interval (seconds) for sending telemetry to remote API
+
+You can set additional environment variables for advanced configuration. See `src/common/config.py` for all available options.
+
+---
+
+## Running Subsystems
+
+To start all CubeSat services (recommended):
+
+```
+bash scripts/install.sh   # install dependencies and setup
+bash scripts/start.sh     # start all services
+bash scripts/stop.sh      # stop all services
+```
+
+To run individual services manually:
+
+```
+source venv/bin/activate
+PYTHONPATH=. python -m src.obc.main
+PYTHONPATH=. python -m src.eps.main
+PYTHONPATH=. python -m src.adcs.main
+PYTHONPATH=. python -m src.payload.main
+PYTHONPATH=. python -m src.telemetry.main
+```
+
+---
+
+## Documentation
+
+See additional documents in the `docs/` directory:
+- [Architecture Overview](docs/architecture.md)
+- [Code Smells & Refactoring Plan](docs/code_smells.md)
+- [Refactoring Plan](docs/refactoring_plan.md)
+
+---
+
 ## License
 
 See LICENSE file for details.
-
