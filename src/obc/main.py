@@ -28,10 +28,10 @@ class OBC:
 
     def on_mqtt_connect(self, client, userdata, flags, rc, properties=None):
         if rc != 0:
-            logger.error(f"Ошибка подключения MQTT → rc = {rc}")
+            logger.error(f"MQTT connection error → rc = {rc}")
             return
 
-        logger.info(f"MQTT подключён (rc={rc}, client_id={client._client_id.decode()})")
+        logger.info(f"MQTT connected (rc={rc}, client_id={client._client_id.decode()})")
 
         client.subscribe(TOPICS["eps_status"], qos=1)
         client.subscribe(TOPICS["command"],    qos=1)
@@ -53,16 +53,16 @@ class OBC:
             elif topic == TOPICS["command"]:
                 self.handlers.handle_command(payload)
             else:
-                logger.debug(f"Необработанный топик: {topic}")
+                logger.debug(f"Unhandled topic: {topic}")
         except Exception as e:
-            logger.error(f"Ошибка обработки сообщения {msg.topic}: {e}")
+            logger.error(f"Error processing message {msg.topic}: {e}")
 
     def run(self):
         try:
             self.mqtt_client.connect(MQTT_BROKER, MQTT_PORT, keepalive=MQTT_KEEPALIVE)
             self.mqtt_client.loop_start()
 
-            logger.info(f"OBC запущен. Состояние: {self.state_machine.state}")
+            logger.info(f"OBC started. State: {self.state_machine.state}")
 
             while True:
                 self.mqtt_client.publish(
@@ -73,13 +73,13 @@ class OBC:
                 time.sleep(30)
 
         except KeyboardInterrupt:
-            logger.info("Остановка по Ctrl+C")
+            logger.info("Stopped by Ctrl+C")
         except Exception as e:
-            logger.exception("Критическая ошибка в главном цикле OBC")
+            logger.exception("Critical error in OBC main loop")
         finally:
             self.mqtt_client.loop_stop()
             self.mqtt_client.disconnect()
-            logger.info("OBC завершил работу")
+            logger.info("OBC shutdown complete")
 
 if __name__ == "__main__":
     obc = OBC()

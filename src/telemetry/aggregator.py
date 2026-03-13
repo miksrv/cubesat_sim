@@ -118,7 +118,7 @@ class TelemetryAggregator:
         packet = self.build_telemetry_packet()
         self._log_to_db(packet)
 
-        logger.info(f"Telemetry aggregated: {packet['timestamp']}")
+        logger.debug(f"Telemetry aggregated: {packet['timestamp']}")
 
     def _log_to_db(self, packet):
         cursor = self.conn.cursor()

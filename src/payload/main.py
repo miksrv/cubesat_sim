@@ -105,6 +105,7 @@ class PayloadService:
                             "path": path,
                             "taken_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                             "size_bytes": len(photo_bytes),
+                            "photo_base64": photo_base64,
                             "mime_type": "image/jpeg"
                         }
 
