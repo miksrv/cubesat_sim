@@ -218,7 +218,7 @@ The correct check with MQTTv5 is `reason_code.is_failure` or `reason_code == 0` 
 ```python
 self.mqtt_client.publish(
     TOPICS["payload_status"],
-    f'{"state": "IDLE", "alive": true, "ts": {time.time()}}',  # invalid f-string
+    f'{"state": "IDLE", "alive": true, "timestamp": {time.time()}}',  # invalid f-string
     ...
 )
 ```

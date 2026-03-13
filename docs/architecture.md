@@ -186,7 +186,7 @@ Shared infrastructure used by all services.
 1. Ground sends:  {"command": "science_start"} → cubesat/command
 
 2. OBC receives command, transitions NOMINAL → SCIENCE
-   Publishes: {"ts": <unix_float>, "status": "SCIENCE"} → cubesat/obc/status (retain)
+   Publishes: {"timestamp": <unix_float>, "status": "SCIENCE"} → cubesat/obc/status (retain)
 
 3. Payload reads obc_state = "SCIENCE" (no action — science poll is always running)
    Every 60s: collects T/H/P → cubesat/payload/data

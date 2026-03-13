@@ -136,9 +136,9 @@ _Items will be moved here when done._
 
 | # | Description | Date |
 |---|-------------|------|
-| B1–B6 | All confirmed runtime bugs fixed (IMU sign conversion, AHRS class state, uptime calculation, missing Path import, OBC f-string JSON, payload status casing) | 2026-03-13 |
-| C1–C5 | All configuration & deployment fixes (hardcoded photo dir, missing requirements, incomplete install.sh, config.yaml, restart.sh) | 2026-03-13 |
-| RF1–RF3 | Minor refactoring: standardized obc/status format (`ts` + `status`), consolidated all commands onto `cubesat/command`, updated README/CLAUDE.md/architecture.md | 2026-03-13 |
+| B1–B6 | All confirmed runtime bugs fixed (IMU sign conversion, AHRS class state, uptime calculation, missing Path import, OBC f-string JSON, payload status casing) | `[x]` |
+| C1–C5 | All configuration & deployment fixes (hardcoded photo dir, missing requirements, incomplete install.sh, config.yaml, restart.sh) | `[x]` |
+| RF1–RF3 | Minor refactoring: standardized obc/status format (`ts` + `status`), consolidated all commands onto `cubesat/command`, updated README/CLAUDE.md/architecture.md | `[x]` |
 
 ---
 

@@ -92,9 +92,9 @@ class CubeSatStateMachine:
     def publish_state(self, extra=None):
         """
         Publishes the current state to MQTT.
-        Format: {"ts": <unix_float>, "status": <state>, ...extra}
+        Format: {"timestamp": <unix_float>, "status": <state>, ...extra}
         """
-        payload = {"ts": time.time(), "status": self.state}
+        payload = {"timestamp": time.time(), "status": self.state}
         if extra:
             payload.update(extra)
         self.obc.mqtt_client.publish(

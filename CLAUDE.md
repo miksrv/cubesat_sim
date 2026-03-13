@@ -97,7 +97,7 @@ All topic strings are centralized in `TOPICS` dict — always reference `TOPICS[
 
 **`cubesat/obc/status` payload format:**
 ```json
-{"ts": <unix_float>, "status": "<STATE>"}
+{"timestamp": <unix_float>, "status": "<STATE>"}
 ```
 Consumers read the `"status"` field (not `"state"`) to determine the current OBC state.
 

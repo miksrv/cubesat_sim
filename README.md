@@ -240,7 +240,7 @@ All topic strings are defined in `src/common/config.py` (`TOPICS` dict). Always 
 ### `cubesat/obc/status`
 ```json
 {
-  "ts": 1741863600.0,
+  "timestamp": 1741863600.0,
   "status": "NOMINAL"
 }
 ```
@@ -321,7 +321,7 @@ All commands use the same topic. The `"command"` field determines which service 
 1. Ground sends:  {"command": "science_start"}  →  cubesat/command
 
 2. OBC receives command, transitions NOMINAL → SCIENCE
-   Publishes: {"ts": <unix_float>, "status": "SCIENCE"}  →  cubesat/obc/status  (retain)
+   Publishes: {"timestamp": <unix_float>, "status": "SCIENCE"}  →  cubesat/obc/status  (retain)
 
 3. Payload reads obc_state = "SCIENCE" — science poll continues as normal.
    Every 60 s: reads LPS22HB + SHTC3  →  cubesat/payload/data
@@ -359,12 +359,12 @@ All commands use the same topic. The `"command"` field determines which service 
 
 2. OBC handler: 38% < 40% threshold → triggers enter_low_power
    State: NOMINAL → LOW_POWER
-   Publishes: {"ts": <unix_float>, "status": "LOW_POWER"}  →  cubesat/obc/status
+   Publishes: {"timestamp": <unix_float>, "status": "LOW_POWER"}  →  cubesat/obc/status
 
 3. If battery continues to drop to 18%:
    OBC handler: 18% < 20% → triggers enter_safe_mode
    State: LOW_POWER → SAFE
-   Publishes: {"ts": <unix_float>, "status": "SAFE"}  →  cubesat/obc/status
+   Publishes: {"timestamp": <unix_float>, "status": "SAFE"}  →  cubesat/obc/status
 
 4. When external power is connected (GPIO pin HIGH):
    OBC handler: calls recover()

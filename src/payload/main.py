@@ -45,7 +45,7 @@ class PayloadService:
             json.dumps({
                 "state": "IDLE",
                 "alive": True,
-                "ts": time.time()
+                "timestamp": time.time()
             }),
             qos=1,
             retain=True
