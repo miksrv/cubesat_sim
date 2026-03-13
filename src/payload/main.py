@@ -86,7 +86,7 @@ class PayloadService:
                     logger.warning(f"Photo request denied: OBC state = {self.obc_state}")
                     return
 
-                overlay = data.get("overlay", False)
+                overlay = data.get("params", {}).get("overlay", False)
                 path = self.camera.take_photo(overlay=overlay)
 
                 logger.info(f"take_photo returned path = {path!r}")
