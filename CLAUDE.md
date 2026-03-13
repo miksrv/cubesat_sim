@@ -68,7 +68,7 @@ BOOT → DEPLOY → NOMINAL ↔ SCIENCE
 - State transitions are triggered by: EPS battery level (via `handlers.py`) or ground commands on `cubesat/command`
 - Battery < 40% → `LOW_POWER`; battery < 20% → `SAFE`
 - Telemetry aggregation only runs when OBC state is `SCIENCE`
-- Photo capture only allowed when OBC state is `NOMINAL`
+- Photo capture and timelapse start only allowed when OBC state is `NOMINAL`; timelapse stop is permitted from any state
 
 ### MQTT Topic Map (defined in `src/common/config.py`)
 
@@ -93,6 +93,8 @@ All topic strings are centralized in `TOPICS` dict — always reference `TOPICS[
 | `safe_mode` | OBC | — |
 | `recover` | OBC | — |
 | `take_photo` | Payload | `"request_id"`, `"params": {"overlay": bool}` |
+| `start_timelapse` | Payload | `"params": {"interval_sec": int}` |
+| `stop_timelapse` | Payload | — |
 | `get_telemetry` | Telemetry | `"request_id"` |
 
 **`cubesat/obc/status` payload format:**

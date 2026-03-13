@@ -93,7 +93,11 @@ class CubeSatStateMachine:
         """
         Publishes the current state to MQTT.
         Format: {"timestamp": <unix_float>, "status": <state>, ...extra}
+        Skips silently if MQTT is not yet connected (e.g. during boot sequence).
         """
+        if not self.obc._mqtt_connected:
+            logger.debug(f"MQTT not connected; state publish skipped (state={self.state})")
+            return
         payload = {"timestamp": time.time(), "status": self.state}
         if extra:
             payload.update(extra)

@@ -70,65 +70,75 @@ class PayloadService:
             if topic == TOPICS["command"]:
                 command = data.get("command")
 
-                if command != "take_photo":
-                    return
+                if command == "take_photo":
+                    request_id = data.get("request_id", f"req_{int(time.time())}")
 
-                request_id = data.get("request_id", f"req_{int(time.time())}")
-
-                # Check OBC state
-                if self.obc_state != "NOMINAL":
-                    response = {
-                        "status": "ERROR",
-                        "request_id": request_id,
-                        "reason": f"Photo capture not allowed: OBC status is '{self.obc_state}'"
-                    }
-                    self.mqtt_client.publish(
-                        TOPICS["payload_status"],
-                        json.dumps(response),
-                        qos=1,
-                        retain=True
-                    )
-                    logger.warning(f"Photo request denied: OBC status = {self.obc_state}")
-                    return
-
-                overlay = data.get("params", {}).get("overlay", False)
-                path = self.camera.take_photo(overlay=overlay)
-
-                logger.info(f"take_photo returned path = {path!r}")
-
-                if path and os.path.exists(path):
-                    logger.info(f"File exists, size = {os.path.getsize(path)} bytes")
-                    try:
-                        with open(path, "rb") as f:
-                            photo_bytes = f.read()
-                            logger.info(f"Read {len(photo_bytes)} bytes from file")
-                            photo_base64 = base64.b64encode(photo_bytes).decode('utf-8')
-
+                    # Check OBC state
+                    if self.obc_state != "NOMINAL":
                         response = {
-                            "status": "SUCCESS",
+                            "status": "ERROR",
                             "request_id": request_id,
-                            "path": path,
-                            "taken_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                            "size_bytes": len(photo_bytes),
-                            "photo_base64": photo_base64,
-                            "mime_type": "image/jpeg"
+                            "reason": f"Photo capture not allowed: OBC status is '{self.obc_state}'"
                         }
-
-                        # Publish full response with photo to main topic for bot
                         self.mqtt_client.publish(
-                            TOPICS["payload_photo"],  # ← main topic for Telegram bot
+                            TOPICS["payload_status"],
                             json.dumps(response),
                             qos=1,
-                            retain=False              # retain=False for large messages
+                            retain=True
                         )
+                        logger.warning(f"Photo request denied: OBC status = {self.obc_state}")
+                        return
 
-                        logger.info(f"Photo successfully sent to MQTT: {path}, size={response['size_bytes']} bytes")
-                    except Exception as e:
-                        logger.error(f"Error reading/encoding photo {path}: {e}")
-                        self._send_error_response(request_id, "Failed to encode photo")
-                else:
-                    self._send_error_response(request_id, "Failed to capture photo")
-                    logger.error(f"take_photo returned invalid path or file does not exist: {path}")
+                    overlay = data.get("params", {}).get("overlay", False)
+                    path = self.camera.take_photo(overlay=overlay)
+
+                    logger.info(f"take_photo returned path = {path!r}")
+
+                    if path and os.path.exists(path):
+                        logger.info(f"File exists, size = {os.path.getsize(path)} bytes")
+                        try:
+                            with open(path, "rb") as f:
+                                photo_bytes = f.read()
+                                logger.info(f"Read {len(photo_bytes)} bytes from file")
+                                photo_base64 = base64.b64encode(photo_bytes).decode('utf-8')
+
+                            response = {
+                                "status": "SUCCESS",
+                                "request_id": request_id,
+                                "path": path,
+                                "taken_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                                "size_bytes": len(photo_bytes),
+                                "photo_base64": photo_base64,
+                                "mime_type": "image/jpeg"
+                            }
+
+                            # Publish full response with photo to main topic for bot
+                            self.mqtt_client.publish(
+                                TOPICS["payload_photo"],  # ← main topic for Telegram bot
+                                json.dumps(response),
+                                qos=1,
+                                retain=False              # retain=False for large messages
+                            )
+
+                            logger.info(f"Photo successfully sent to MQTT: {path}, size={response['size_bytes']} bytes")
+                        except Exception as e:
+                            logger.error(f"Error reading/encoding photo {path}: {e}")
+                            self._send_error_response(request_id, "Failed to encode photo")
+                    else:
+                        self._send_error_response(request_id, "Failed to capture photo")
+                        logger.error(f"take_photo returned invalid path or file does not exist: {path}")
+
+                elif command == "start_timelapse":
+                    if self.obc_state != "NOMINAL":
+                        logger.warning(f"Timelapse start denied: OBC status = {self.obc_state}")
+                        return
+                    interval_sec = data.get("params", {}).get("interval_sec", 60)
+                    self.camera.start_timelapse(interval_sec=interval_sec)
+                    logger.info(f"Timelapse started (interval={interval_sec}s)")
+
+                elif command == "stop_timelapse":
+                    self.camera.stop_timelapse()
+                    logger.info("Timelapse stopped")
 
         except json.JSONDecodeError:
             logger.error(f"Invalid JSON in {topic}")

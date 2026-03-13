@@ -135,7 +135,7 @@ Two responsibilities combined in one service:
 1. **Camera**: Takes single photos on demand (via MQTT command), encodes as Base64, publishes on `cubesat/payload/photo`
 2. **Science**: Polls LPS22HB (pressure/temperature) and SHTC3 (humidity/temperature) sensors every 60 seconds, publishes on `cubesat/payload/data`
 
-Photo capture is gated: only allowed when OBC is in `NOMINAL` state (tracked by subscribing to `cubesat/obc/status`).
+Photo capture and timelapse start are gated: only allowed when OBC is in `NOMINAL` state (tracked by subscribing to `cubesat/obc/status`). Timelapse stop is permitted from any state.
 
 **Files:**
 | File | Responsibility |
@@ -215,6 +215,18 @@ Shared infrastructure used by all services.
 
 3. Photo encoded as Base64:
    Full response (with photo_base64) → cubesat/payload/photo
+```
+
+## Data Flow: Timelapse
+
+```
+1. Ground sends: {"command": "start_timelapse", "params": {"interval_sec": 60}}
+   → cubesat/command
+   Payload: OBC must be NOMINAL; starts background thread capturing every interval_sec seconds.
+
+2. Ground sends: {"command": "stop_timelapse"}
+   → cubesat/command
+   Payload: stops timelapse thread (allowed from any OBC state).
 ```
 
 ---

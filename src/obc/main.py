@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 class OBC:
     def __init__(self):
+        self._mqtt_connected = False
+
         self.mqtt_client = get_mqtt_client("cubesat-obc")
         self.mqtt_client.on_connect = self.on_mqtt_connect
         self.mqtt_client.on_message = self.on_mqtt_message
@@ -32,6 +34,7 @@ class OBC:
             logger.error(f"MQTT connection error → rc = {rc}")
             return
 
+        self._mqtt_connected = True
         logger.info(f"MQTT connected (rc={rc}, client_id={client._client_id.decode()})")
 
         client.subscribe(TOPICS["eps_status"], qos=1)

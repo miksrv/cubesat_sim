@@ -156,7 +156,7 @@ Note: this service is currently sensing-only. Actuator control (reaction wheels,
 
 Combines two responsibilities:
 
-1. **Camera** — captures a JPEG photo via Picamera2 on demand. Responds to `take_photo` commands on `cubesat/command`. Photo capture is gated: it is only permitted when the OBC is in `NOMINAL` state. The JPEG is Base64-encoded and published to `cubesat/payload/photo`.
+1. **Camera** — captures a JPEG photo via Picamera2 on demand. Responds to `take_photo`, `start_timelapse`, and `stop_timelapse` commands on `cubesat/command`. `take_photo` and `start_timelapse` are gated: only permitted when the OBC is in `NOMINAL` state. Photos are Base64-encoded and published to `cubesat/payload/photo`.
 
 2. **Science** — polls an LPS22HB barometric pressure + temperature sensor (I2C) and a SHTC3 humidity + temperature sensor (I2C) every 60 seconds and publishes the readings to `cubesat/payload/data`.
 
@@ -308,6 +308,8 @@ All commands use the same topic. The `"command"` field determines which service 
 {"command": "safe_mode"}
 {"command": "recover"}
 {"command": "take_photo", "request_id": "req_001", "params": {"overlay": false}}
+{"command": "start_timelapse", "params": {"interval_sec": 60}}
+{"command": "stop_timelapse"}
 {"command": "get_telemetry", "request_id": "req_002"}
 ```
 
@@ -350,6 +352,16 @@ All commands use the same topic. The `"command"` field determines which service 
                    Base64-encodes image
 
 3. Publishes full response (with photo_base64)  →  cubesat/payload/photo
+```
+
+### Timelapse
+
+```
+1. Ground sends: {"command": "start_timelapse", "params": {"interval_sec": 60}}  →  cubesat/command
+   Payload: OBC must be NOMINAL; starts background thread capturing every interval_sec seconds.
+
+2. Ground sends: {"command": "stop_timelapse"}  →  cubesat/command
+   Payload: stops timelapse thread (allowed from any OBC state).
 ```
 
 ### Low-power event
