@@ -42,7 +42,11 @@ class PayloadService:
 
         self.mqtt_client.publish(
             TOPICS["payload_status"],
-            f'{"state": "IDLE", "alive": true, "ts": {time.time()}}',
+            json.dumps({
+                "state": "IDLE",
+                "alive": True,
+                "ts": time.time()
+            }),
             qos=1,
             retain=True
         )

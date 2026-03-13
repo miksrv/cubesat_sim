@@ -32,9 +32,6 @@ TOPICS: Dict[str, str] = {
     "payload_photo":        "cubesat/payload/photo",
     "telemetry_data":       "cubesat/telemetry/data",
 
-    # Телеметрия
-    "telemetry":            "cubesat/telemetry",
-
     # Управление подсистемами (от OBC)
     "control":              "cubesat/control/#",
 

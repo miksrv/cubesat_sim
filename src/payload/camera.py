@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 class PayloadCamera:
     PHOTO_DIR = "/home/mik/cubesat-sim/data/photos"  # or from config
+
     def __init__(self):
         os.makedirs(self.PHOTO_DIR, exist_ok=True)
         self.timelapse_running = False
@@ -28,8 +29,8 @@ class PayloadCamera:
         picam2.start()
         return picam2
 
-    def take_photo(self, overlay=False):
-        """Takes a single photo and returns the file path"""
+    def take_photo(self, overlay=False, save_photo=True):
+        """Takes a single photo and returns the file path. If save_photo=False, photo is deleted after sending."""
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         filename = f"photo_{timestamp}.jpg"
         path = os.path.join(self.PHOTO_DIR, filename)
@@ -42,8 +43,6 @@ class PayloadCamera:
 
             logger.info(f"Photo saved: {path}")
 
-            # If overlay=True — add logic here (see previous answer)
-            # For now, just return the path
             return path
 
         except Exception as e:
@@ -53,6 +52,16 @@ class PayloadCamera:
             if picam2:
                 picam2.stop()
                 picam2.close()
+
+    def send_and_cleanup_photo(self, path):
+        """Send photo and delete it if not timelapse."""
+        # Implement your send logic here (e.g., MQTT, API, etc.)
+        logger.info(f"Photo sent: {path}")
+        try:
+            os.remove(path)
+            logger.info(f"Photo deleted: {path}")
+        except Exception as e:
+            logger.error(f"Failed to delete photo: {e}")
 
     def start_timelapse(self, interval_sec=60):
         if self.timelapse_running:
@@ -68,7 +77,7 @@ class PayloadCamera:
 
     def _timelapse_loop(self, interval):
         while not self.stop_event.is_set():
-            self.take_photo()  # you can add overlay
+            self.take_photo(save_photo=True)  # Timelapse photos are saved
             time.sleep(interval)
 
     def stop_timelapse(self):
