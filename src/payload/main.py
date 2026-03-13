@@ -73,7 +73,7 @@ class PayloadService:
                 # Check OBC state
                 if self.obc_state != "NOMINAL":
                     response = {
-                        "status": "error",
+                        "status": "ERROR",
                         "request_id": request_id,
                         "reason": f"Photo capture not allowed: OBC state is '{self.obc_state}'"
                     }
@@ -100,36 +100,20 @@ class PayloadService:
                             photo_base64 = base64.b64encode(photo_bytes).decode('utf-8')
 
                         response = {
-                            "status": "ok",
+                            "status": "SUCCESS",
                             "request_id": request_id,
                             "path": path,
                             "taken_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                             "size_bytes": len(photo_bytes),
-                            "photo_base64": photo_base64,
                             "mime_type": "image/jpeg"
                         }
 
                         # Publish full response with photo to main topic for bot
                         self.mqtt_client.publish(
-                            "cubesat/payload/photo",  # ← main topic for Telegram bot
+                            TOPICS["payload_photo"],  # ← main topic for Telegram bot
                             json.dumps(response),
                             qos=1,
-                            retain=False              # retain=False for large messages
-                        )
-
-                        # Optionally: short status without base64 (for logs/monitoring)
-                        status_only = {
-                            "status": "ok",
-                            "request_id": request_id,
-                            "path": path,
-                            "taken_at": response["taken_at"],
-                            "size_bytes": response["size_bytes"]
-                        }
-                        self.mqtt_client.publish(
-                            TOPICS["payload_photo"], # ← status without photo
-                            json.dumps(status_only),
-                            qos=1,
-                            retain=True
+                            retain=TRUE              # retain=False for large messages
                         )
 
                         logger.info(f"Photo successfully sent to MQTT: {path}, size={response['size_bytes']} bytes")

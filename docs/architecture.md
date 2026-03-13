@@ -17,7 +17,6 @@ CubeSat Sim is a distributed simulation of a CubeSat satellite's onboard softwar
 │  cubesat/command/payload  cubesat/adcs/status             │
 │  cubesat/command/telemetry cubesat/payload/data           │
 │  cubesat/payload/photo    cubesat/telemetry/data          │
-│  cubesat/control/#                                        │
 └───────┬──────────────────────────────────────────────────-┘
         │ publish/subscribe
   ┌─────┴──────────────────────────────────────────────┐
@@ -93,8 +92,7 @@ Reads hardware power state via I2C (MAX17048 fuel gauge at `0x36`) and GPIO (X72
   "timestamp": 1700000000.0,
   "battery": 87.5,
   "voltage": 4.123,
-  "external_power": true,
-  "status": "ok"
+  "external_power": true
 }
 ```
 

@@ -78,7 +78,6 @@ All topic strings are centralized in `TOPICS` dict — always reference `TOPICS[
 |---|---|---|
 | `command` | `cubesat/command` | Ground → OBC |
 | `command_photo` | `cubesat/command/photo` | Ground → Payload |
-| `command_payload` | `cubesat/command/payload` | Ground → Payload |
 | `command_telemetry` | `cubesat/command/telemetry` | Ground → Telemetry |
 | `obc_status` | `cubesat/obc/status` | OBC → All |
 | `eps_status` | `cubesat/eps/status` | EPS → OBC, Telemetry |

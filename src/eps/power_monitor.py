@@ -66,8 +66,7 @@ class EPSMonitor:
             "timestamp": time.time(),
             "battery": self.get_battery_percent(),
             "voltage": self.get_battery_voltage(),
-            "external_power": self.get_external_power(),
-            "status": "ok"
+            "external_power": self.get_external_power()
         }
 
         return status

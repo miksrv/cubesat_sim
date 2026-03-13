@@ -15,12 +15,11 @@ MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
 # MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", None)
 MQTT_KEEPALIVE = 60
 
-# Топики (централизованно — меняй здесь один раз)
+# Топики
 TOPICS: Dict[str, str] = {
     # Команды
     "command":              "cubesat/command",
     "command_photo":        "cubesat/command/photo",
-    "command_payload":      "cubesat/command/payload",
     "command_telemetry":    "cubesat/command/telemetry",
 
     # Статусы подсистем
@@ -31,12 +30,6 @@ TOPICS: Dict[str, str] = {
     "payload_data":         "cubesat/payload/data",
     "payload_photo":        "cubesat/payload/photo",
     "telemetry_data":       "cubesat/telemetry/data",
-
-    # Управление подсистемами (от OBC)
-    "control":              "cubesat/control/#",
-
-    # Ответы
-    "response_photo":       "cubesat/response/photo/#",
 }
 
 # Пути к данным
