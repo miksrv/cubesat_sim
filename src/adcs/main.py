@@ -19,7 +19,7 @@ class ADCS:
     def __init__(self):
         self.mqtt_client = get_mqtt_client("cubesat-adcs")
         self.imu = IMU()
-        logger.info("ADCS подсистема инициализирована")
+        logger.info("ADCS subsystem initialized")
 
     def publish_status(self):
         try:
@@ -41,9 +41,8 @@ class ADCS:
                 json.dumps(packet),
                 qos=1
             )
-            logger.debug(f"Опубликована ориентация: {packet}")
         except Exception as e:
-            logger.error(f"Ошибка чтения/публикации ADCS: {e}")
+            logger.error(f"Error reading/publishing ADCS: {e}")
 
     def run(self):
         self.mqtt_client.connect(MQTT_BROKER, MQTT_PORT, keepalive=MQTT_KEEPALIVE)
@@ -52,9 +51,11 @@ class ADCS:
         try:
             while True:
                 self.publish_status()
-                time.sleep(0.5)  # 1 Гц — можно сделать 5–10 Гц, подстрой halfT в IMU
+                time.sleep(0.5)  # 2 Hz update rate
         except KeyboardInterrupt:
-            logger.info("Остановка ADCS")
+            logger.info("ADCS stopped")
+        except Exception as e:
+            logger.exception("Critical error in main ADCS loop")
         finally:
             self.mqtt_client.loop_stop()
             self.mqtt_client.disconnect()

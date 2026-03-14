@@ -11,7 +11,7 @@ BATTERY_I2C_ADDR = 0x36
 REG_VCELL = 0x02
 REG_SOC = 0x04
 
-PLD_PIN = 6  # BCM 6 — как в документации X728
+PLD_PIN = 6  # GPIO pin connected to the PLD signal from the Geekworm UPS HAT (0 = AC OK, 1 = AC Lost)
 
 class EPSMonitor:
     def __init__(self):
@@ -20,9 +20,9 @@ class EPSMonitor:
             GPIO.setwarnings(False)
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(PLD_PIN, GPIO.IN)
-            logger.info(f"RPi.GPIO инициализирован для PLD_PIN={PLD_PIN}")
+            logger.info(f"RPi.GPIO initialized for PLD_PIN={PLD_PIN}")
         except Exception as e:
-            logger.error(f"Ошибка настройки GPIO: {e}")
+            logger.error(f"GPIO setup error: {e}")
             raise
 
     def read_word(self, reg: int) -> int:
@@ -31,7 +31,7 @@ class EPSMonitor:
             lsb = self.bus.read_byte_data(BATTERY_I2C_ADDR, reg + 1)
             return (msb << 8) | lsb
         except Exception as e:
-            logger.error(f"I2C ошибка при чтении 0x{reg:02X}: {e}")
+            logger.error(f"I2C error reading 0x{reg:02X}: {e}")
             return 0
 
     def get_battery_voltage(self) -> Optional[float]:
@@ -50,10 +50,10 @@ class EPSMonitor:
         return round(percent, 2)
 
     def get_external_power(self) -> bool:
-        """True = на внешнем питании (AC), False = на батарее"""
+        """True = on external power (AC), False = on battery"""
         try:
             pin_value = GPIO.input(PLD_PIN)
-            # По документации Geekworm: 0 = AC OK (внешнее есть), 1 = AC Lost
+            # According to Geekworm documentation: 0 = AC OK (external present), 1 = AC Lost
             is_ac_present = (pin_value == 0)
             logger.debug(f"PLD_PIN = {pin_value}, external_power = {is_ac_present}")
             return is_ac_present
@@ -75,4 +75,4 @@ class EPSMonitor:
         try:
             GPIO.cleanup()
         except Exception as e:
-            logger.debug(f"GPIO cleanup не требуется: {e}")
+            logger.debug(f"GPIO cleanup not required: {e}")

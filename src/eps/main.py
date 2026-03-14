@@ -18,37 +18,37 @@ logger = logging.getLogger(__name__)
 class EPSService:
     def __init__(self):
         self.mqtt_client = get_mqtt_client("cubesat-eps")
-        self.monitor = EPSMonitor()  # можно False для теста без GPIO
+        self.monitor = EPSMonitor()  # can be False for testing without GPIO
 
     def publish_status(self):
         status = self.monitor.get_status()
-        logger.info(f"EPS статус: {status}")
+        logger.info(f"EPS status: {status}")
 
         self.mqtt_client.publish(
             TOPICS["eps_status"],
             json.dumps(status),
             qos=1,
-            retain=True  # чтобы всегда был последний статус
+            retain=True  # always keep the latest status
         )
 
     def run(self):
         self.mqtt_client.connect(MQTT_BROKER, MQTT_PORT, keepalive=MQTT_KEEPALIVE)
         self.mqtt_client.loop_start()
 
-        logger.info("EPS сервис запущен")
+        logger.info("EPS service started")
 
         try:
             while True:
                 self.publish_status()
-                time.sleep(30)  # обновление каждые 30 секунд — можно уменьшить до 10–15
+                time.sleep(30)  # update every 30 seconds — can be reduced to 10–15
         except KeyboardInterrupt:
-            logger.info("Остановка EPS сервиса")
+            logger.info("Stopping EPS service")
         except Exception as e:
-            logger.exception("Критическая ошибка в главном цикле EPS")
+            logger.exception("Critical error in main EPS loop")
         finally:
             self.mqtt_client.loop_stop()
             self.mqtt_client.disconnect()
-            logger.info("EPS сервис завершил работу")
+            logger.info("EPS service stopped")
 
 if __name__ == "__main__":
     service = EPSService()
