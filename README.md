@@ -34,7 +34,7 @@ Each subsystem is an independent Python process. All inter-process communication
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                     MQTT Broker (mosquitto)                       │
+│                     MQTT Broker (mosquitto)                      │
 │                                                                  │
 │  cubesat/command            cubesat/obc/status    (retained)     │
 │  cubesat/command/photo      cubesat/eps/status    (retained)     │
