@@ -45,19 +45,19 @@ Each subsystem is an independent Python process. All inter-process communication
 │                             cubesat/telemetry/data               │
 └───────────┬──────────────────────────────────────────────────────┘
             │ publish / subscribe
-   ┌─────────┴──────────────────────────────────────────────┐
-   ▼         ▼          ▼             ▼              ▼
-┌──────┐  ┌──────┐  ┌──────┐  ┌───────────┐  ┌───────────┐
-│ OBC  │  │ EPS  │  │ ADCS │  │  Payload  │  │ Telemetry │
-│      │  │      │  │      │  │           │  │           │
-│State │  │Power │  │ IMU  │  │ Camera    │  │ Aggregator│
-│Mach. │  │Mon.  │  │ AHRS │  │ Science   │  │ SQLite DB │
-└──────┘  └──────┘  └──────┘  └───────────┘  └───────────┘
-             │           │           │
-          I2C/GPIO      I2C         I2C / CSI
-          MAX17048    QMI8658      LPS22HB
-          X728 UPS    AK09918      SHTC3
-                                   Picamera2
+   ┌────────┴──────────────────────────────────────────────┐
+   ▼            ▼           ▼             ▼                ▼
+┌──────┐    ┌──────┐    ┌──────┐    ┌───────────┐    ┌───────────┐
+│ OBC  │    │ EPS  │    │ ADCS │    │  Payload  │    │ Telemetry │
+│      │    │      │    │      │    │           │    │           │
+│State │    │Power │    │ IMU  │    │ Camera    │    │ Aggregator│
+│Mach. │    │Mon.  │    │ AHRS │    │ Science   │    │ SQLite DB │
+└──────┘    └──────┘    └──────┘    └───────────┘    └───────────┘
+               │           │              │
+            I2C/GPIO      I2C         I2C / CSI
+            MAX17048    QMI8658       LPS22HB
+            X728 UPS    AK09918       SHTC3
+                                      Picamera2
                       Raspberry Pi Hardware
 ```
 
@@ -79,7 +79,7 @@ The central authority of the simulation. It is the only service that manages mis
          ▼                                                       │
        BOOT ──auto_deploy──► DEPLOY ──deployment_complete──► NOMINAL
                                                           │       ▲
-                                              start_science│       │end_science
+                                             start_science│       │end_science
                                                           ▼       │
                                                        SCIENCE ───┘
                                                           │
